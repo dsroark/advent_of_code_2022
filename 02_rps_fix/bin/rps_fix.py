@@ -2,53 +2,52 @@
 import os
 import sys
 
-debug=1
+debug=0
 
-def rps_match(opponent, player):
-    match_score = 0
-    result = ""
-    base_score = player[0]
-    p1 = opponent[1]
-    p2 = player[1]
-    if p1 == p2:
-        result = "draw"
-        match_score = 3
-    elif p1 == "rock" and p2 == "paper":
-        result = "win"
-        match_score = 6
-    elif p1 == "rock" and p2 == "scissors":
-        result = "loss"
-        match_score = 0
-    elif p1 == "paper" and p2 == "scissors":
-        result = "win"
-        match_score = 6
-    elif p1 == "paper" and p2 == "rock":
-        result = "loss"
-        match_score = 0
-    elif p1 == "scissors" and p2 == "rock":
-        result = "win"
-        match_score = 6
-    elif p1 == "scissors" and p2 == "paper":
-        result = "loss"
-        match_score = 0
-    else:
-        print('not a valid match')
-        sys.exit(1)
+class Choice:
+    def __init__(self, name, beats, loses_to, points):
+        self.win = 6
+        self.draw = 3
+        self.loss = 0
+        self.name = name
+        self.beats = beats
+        self.loses_to = loses_to
+        self.points = points
 
-    match_score = match_score + base_score
+    def versus(self, opp_choice):
+        if opp_choice == self.beats:
+            return self.win
+        elif opp_choice == self.loses_to:
+            return self.loss
+        elif opp_choice == self.name:
+            return self.draw
+        else:
+            print(f"{opp_choice} not a valid choice")
+            sys.exit(1)
 
-    if debug == 1:
-        print(f"{p1} vs {p2} resulting in {result}. Match Score: {match_score}")
+    # note that the second return value is from the perspective of the class's player
+    # and is inverse to the result
+    def fix(self, fixed_result):
+        if fixed_result in ["Z", "win"]:
+            return self.win, self.loses_to
+        if fixed_result in ["Y", "draw"]:
+            return self.draw, self.name
+        if fixed_result in ["X", "loss"]:
+            return self.loss, self.beats
+        if fixed_result == "fair game":
+            return
+        else:
+            print("Not a valid result")
+            sys.exit(1)
 
-    return match_score
 
-def rps_translate(choice):
-    if choice in ["A","X"]:
-        return 1, "rock"
-    elif choice in ["B", "Y"]:
-        return 2, "paper"
-    elif choice in ["C", "Z"]:
-        return 3, "scissors"
+def rps_factory(choice):
+    if choice in ["rock", "A","X"]:
+        return Choice(name="rock", beats="scissors", loses_to="paper", points=1)
+    elif choice in ["paper", "B", "Y"]:
+        return Choice(name="paper", beats="rock", loses_to="scissors", points=2)
+    elif choice in ["scissors", "C", "Z"]:
+        return Choice(name="scissors", beats="paper", loses_to="rock", points=3)
     else:
         return "Not a valid choice!"
 
@@ -66,12 +65,29 @@ def main():
     score = 0
     for line in lines:
         choices = line.split()
-        score = score + rps_match(rps_translate(choices[0]), rps_translate(choices[1]))
+        them = rps_factory(choices[0])
+        me = rps_factory(choices[1])
+        score = score + me.versus(them.name) + me.points
+        if debug == 1:
+            print(f"Running score: {score}")
+    print(f"The final score is {score}")
+
+    print("\n\n---------------------\nTHE FIX IS IN!!!\n\n")
+    score = 0
+    for line in lines:
+        choices = line.split()
+        them = rps_factory(choices[0])
+        the_fix = them.fix(choices[1])
+        me = rps_factory(the_fix[1])
+
+        score = score + the_fix[0] + me.points
         if debug == 1:
             print(f"Running score: {score}")
 
+    print(f"The fixed score is {score}")
+
     
-    print(f"The final score is {score}")
 
 if __name__ == '__main__':
     main()
+    
