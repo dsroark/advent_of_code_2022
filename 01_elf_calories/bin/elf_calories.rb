@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 if ARGV.length != 1
-  puts "Usage: 01_stars.rb FILE_PATH"
+  puts "Usage: elf_calories.rb FILE_PATH"
   exit
 end
 
