@@ -17,7 +17,6 @@ lines = File.readlines(ARGV[0], chomp: true)
 
 raw_stacks = lines.take(lines.index("") - 1)
 raw_instructions = lines.drop(lines.index("")+1)
-require 'pry'
 
 stacks_reversed = raw_stacks.map do |row|
   row.split('').drop(1).reject.with_index { |i, ix| ix % 4 != 0 }
@@ -31,18 +30,40 @@ instructions = raw_instructions.map do |i|
   i.split.select { |c| number_or_nil(c).is_a? Integer }
 end
 
+stacks1 = stacks.map(&:dup)
+
+puts "PART ONE\n========="
+
 instructions.each do |i|
   num_crates = i[0].to_i
   from = i[1].to_i - 1
   to = i[2].to_i - 1
 
   num_crates.times do
-    crate = stacks[from].pop
-    stacks[to].append(crate)
+    crate = stacks1[from].pop
+    stacks1[to].append(crate)
   end
 end
 
-stacks.each do |stack|
+stacks1.each do |stack|
+  print stack.last
+end
+print "\n"
+
+puts "=========\nPART TWO\n========="
+
+stacks2 = stacks.map(&:dup)
+
+instructions.each do |i|
+  num_crates = i[0].to_i
+  from = i[1].to_i - 1
+  to = i[2].to_i - 1
+
+  crates = stacks2[from].pop(num_crates)
+  (stacks2[to] << crates).flatten!
+end
+
+stacks2.each do |stack|
   print stack.last
 end
 print "\n"
