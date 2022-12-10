@@ -25,6 +25,7 @@ def main():
 
     message = file.read().rstrip()
     print(f"Using four characters: {get_message_start(message, 4)}")
+    print(f"Using fourteen characters: {get_message_start(message, 14)}")
 
 if __name__ == '__main__':
     main()
