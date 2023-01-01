@@ -11,11 +11,12 @@ require 'pry'
 ##
 # this class represents a filesystem
 class Filesystem
-  attr_reader :directories, :directories_stack
+  attr_reader :directories, :directories_stack, :fs_size
 
-  def initialize()
+  def initialize(fs_size)
     @directories_stack = []
     @directories = {}
+    @fs_size = fs_size
   end
 
   def cd(dir)
@@ -57,9 +58,13 @@ class Filesystem
     end
     matching_dirs
   end
+
+  def space_remaining
+    @fs_size - @directories.fetch(:/)
+  end
 end
 
-fs = Filesystem.new
+fs = Filesystem.new(70_000_000)
 cmd = ''
 
 File.readlines(ARGV[0], chomp: true).each do |line|
@@ -73,8 +78,18 @@ File.readlines(ARGV[0], chomp: true).each do |line|
 end
 
 total=0
-fs.search_dir_sizes(100000, :<=).each do |dir, size|
+fs.search_dir_sizes(100_000, :<=).each do |dir, size|
   total += size
 end
 
 puts total
+
+# Part 2
+smallest = fs.fs_size
+fs.directories.each do |dir, size|
+  if size + fs.space_remaining > 30_000_000 && size < smallest
+    smallest = size
+  end
+end
+
+puts smallest
